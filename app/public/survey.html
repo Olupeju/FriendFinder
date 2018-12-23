@@ -144,6 +144,54 @@
         <br>
 
         <button type="button" class="btn btn-primary btn-lg btn-block" id="submit"><i class="fa fa-check-circle" aria-hidden="true"></i>Submit</button>
+        
+        <script>
+            $("#submit").on ("click",function(){
+                function validateForm(){
+                    var isValid = true;
+                    $(".form-control").each (function(){
+                        if($(this).val()==""){
+                            isValid = false;
+                        }
+                    });
+
+                    $(".chosen-select").each(function(){
+                        if($(this).val()==""){
+                            isValid = false;
+                        }
+
+                    });
+                    return isValid;
+                }
+
+                // if all require fields are filled
+                if (validateForm()){
+                    // Create an object for the user"s data
+                    var userData = {
+                        name:$("#name").val(),
+                        photo:$("#photo").val(),
+                        scores:[
+                            $("$q1").val(),
+                            $("$q2").val(),
+                            $("$q3").val(),
+                            $("$q4").val(),
+                            $("$q5").val(),
+                            $("$q6").val(),
+                            $("$q7").val(),
+                            $("$q8").val(),
+                            $("$q9").val(),
+                            $("$q10").val(),
+                            
+
+
+                        ]
+                    };
+                    // Grab the url of the website
+                    var currentURL = window.location.origin;
+
+                }
+            })
+        </script>
        
     </div> 
     <hr>
