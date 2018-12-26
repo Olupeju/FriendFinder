@@ -3,11 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <title>FriendFinder</title>
+
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <script src="https://use.fontawesome.com/b38c8ed4c7.js"></script>
+    
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css">
+    <!-- Chosen -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.jquery.min.js"></script>
 </head>
 <body>
 
@@ -144,63 +148,97 @@
         <br>
 
         <button type="button" class="btn btn-primary btn-lg btn-block" id="submit"><i class="fa fa-check-circle" aria-hidden="true"></i>Submit</button>
+        <hr>
+        <footer class="footer">
+            <div class="container">
+                <p><a href="api/friends">API Friends List</a> | <a href="https://github.com/Olupeju/FriendFinder">Github Repo</a> </p>
+            </div>
+        </footer>
         
-        <script>
-            $("#submit").on ("click",function(){
-                function validateForm(){
-                    var isValid = true;
-                    $(".form-control").each (function(){
-                        if($(this).val()==""){
-                            isValid = false;
-                        }
-                    });
-
-                    $(".chosen-select").each(function(){
-                        if($(this).val()==""){
-                            isValid = false;
-                        }
-
-                    });
-                    return isValid;
-                }
-
-                // if all require fields are filled
-                if (validateForm()){
-                    // Create an object for the user"s data
-                    var userData = {
-                        name:$("#name").val(),
-                        photo:$("#photo").val(),
-                        scores:[
-                            $("$q1").val(),
-                            $("$q2").val(),
-                            $("$q3").val(),
-                            $("$q4").val(),
-                            $("$q5").val(),
-                            $("$q6").val(),
-                            $("$q7").val(),
-                            $("$q8").val(),
-                            $("$q9").val(),
-                            $("$q10").val(),
-                            
-
-
-                        ]
-                    };
-                    // Grab the url of the website
-                    var currentURL = window.location.origin;
-
-                }
-            })
-        </script>
-       
-    </div> 
-    <hr>
-    <footer class="footer">
-        <div class="container">
-            <p><a href="#">API Friends List</a> | <a href="#">Github Repo</a> </p>
+        <!-- Modal after survey completion -->
+        <div id="resultModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h3 class="modal-title">Best Match</h1>
+                    </div>
+                    <div class="modal-body">
+                        <h2 id="MatchName"></h2>
+                        <img id="matchImg" src="" alt="">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
         </div>
-    </footer>
-    
+
+        
+    </div> 
+
+    <script type="text/javascript">
+        // Chosen CSS
+        var config = {
+          '.chosen-select'           : {},
+          '.chosen-select-deselect'  : {allow_single_deselect:true},
+          '.chosen-select-no-single' : {disable_search_threshold:10},
+          '.chosen-select-no-results': {no_results_text:'Oops, nothing found!'},
+          '.chosen-select-width'     : {width:"95%"}
+        }
+        for (var selector in config) {
+          $(selector).chosen(config[selector]);
+        }
+        // Capture the form inputs 
+        $("#submit").on("click", function(){
+            // Form validation
+            function validateForm() {
+              var isValid = true;
+              $('.form-control').each(function() {
+                if ( $(this).val() === '' )
+                    isValid = false;
+              });
+              $('.chosen-select').each(function() {
+                if( $(this).val() === "")
+                    isValid = false
+              })
+              return isValid;
+            }
+            // If all required fields are filled
+            if (validateForm() == true)
+            {
+                // Create an object for the user's data
+                var userData = {
+                    name: $("#name").val(),
+                    photo: $("#photo").val(),
+                    scores: [$("#q1").val(), $("#q2").val(), $("#q3").val(), $("#q4").val(), $("#q5").val(), $("#q6").val(), $("#q7").val(), $("#q8").val(), $("#q9").val(), $("#q10").val(), ]
+                }
+                // Grab the URL of the website
+                var currentURL = window.location.origin;
+                // AJAX post the data to the friends API. 
+                $.post(currentURL + "/api/friends", userData, function(data){
+                    console.log(data);
+                    // Grab the result from the AJAX post so that the best match's name and photo are displayed.
+                    $("#matchName").text(data.name);
+                    $('#matchImg').attr("src", data.photo);
+                    // Show the modal with the best match 
+                    $("#resultsModal").modal('show');
+                             
+                });
+                $('#resultsModal').on('hidden.bs.modal', function (e) {
+                    // do something...
+                    // similar behavior as an HTTP redirect
+                    window.location.replace("/");  
+                })
+            }
+            else
+            {
+                alert("Please fill out all fields before submitting!");
+            }
+            
+            return false;
+        });
+    </script>   
     
 </body>
 </html>
